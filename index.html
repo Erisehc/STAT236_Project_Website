@@ -8,8 +8,57 @@
   <title>Who Should We Test? — STAT 236 Research Project</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+/* A self-contained animated classroom theater; intentionally distinct from empirical plots. */
+.simulation-section{background:#eaf2ee;overflow:hidden}
+.sim-section-top{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:35px}
+.sim-section-top h2{font-size:clamp(33px,3.7vw,54px);letter-spacing:-2px;line-height:1.17;max-width:730px;margin:0}
+.sim-section-top h2 em{color:#098e86}
+.sim-section-top p{max-width:345px;margin:0;color:#5d757a;line-height:1.7;font-size:13px}
+.sim-theater{background:#0d1d2d;border:1px solid #243c4d;box-shadow:0 32px 85px rgba(16,39,48,.17);border-radius:18px;overflow:hidden;color:#e9f7f5}
+.sim-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:20px 25px;border-bottom:1px solid #294052;background:#14283a}
+.sim-brand{display:flex;align-items:center;gap:11px;font-size:11px;font-weight:900;letter-spacing:1.5px;color:#c8e4df}.sim-record{width:9px;height:9px;background:#f79d72;border-radius:50%;box-shadow:0 0 0 5px rgba(247,157,114,.13);animation:simRecord 2s infinite}
+.sim-brand small{font-size:9px;font-weight:700;color:#6e929c;margin-left:8px;letter-spacing:1.2px}
+.sim-toolbar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.sim-control{font-size:12px;border:1px solid #466276;border-radius:7px;min-height:39px;padding:0 13px;color:#e2f5f1;background:#223d4f;font-weight:800;transition:background .18s,border-color .18s}
+.sim-control:hover{background:#325265;border-color:#78b6b3}.sim-primary{background:#a4ebd9;border-color:#a4ebd9;color:#112a36;min-width:147px}.sim-primary:hover{background:#d0fff0}
+.sim-control.sim-small{padding:0 11px;font-size:11px}
+.sim-play-area{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,.8fr)}
+.sim-screen{position:relative;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,rgba(48,89,101,.25),transparent 65%),#0e2030}
+.sim-screen-top{height:42px;position:absolute;left:17px;right:17px;top:10px;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;pointer-events:none}
+.sim-screen-tag,.sim-screen-status{background:rgba(10,31,45,.88);border:1px solid #345368;border-radius:20px;padding:7px 12px;font-weight:900;font-size:9px;letter-spacing:1.3px;color:#97c9ce;white-space:nowrap}
+.sim-screen-tag span{color:#f8bb86}.sim-screen-status{color:#b6e7d8}
+.sim-canvas-wrap{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#527383 transparent}
+#sim-stage{width:100%;min-width:680px;height:auto;display:block}
+.sim-community-halo{stroke-width:1.5;stroke-dasharray:5 8;fill-opacity:.06;stroke-opacity:.4}.sim-community-0{fill:#69bad6;stroke:#69bad6}.sim-community-1{fill:#8ce1c0;stroke:#8ce1c0}.sim-community-2{fill:#c4a4f4;stroke:#c4a4f4}
+.sim-community-name{fill:#b9d4dc;font-size:12px;font-weight:900;letter-spacing:2.2px}.sim-community-sub{fill:#688899;font-size:9px;font-weight:800;letter-spacing:1.4px}
+.sim-edge{stroke-width:2;stroke-linecap:round;pointer-events:none}.sim-observed{stroke:#7099a8;opacity:.48}.sim-unobserved{stroke:#ffbf8f;stroke-dasharray:4 8;opacity:.33;stroke-width:1.7}
+.sim-person{cursor:pointer;outline:none}.sim-head{stroke:#1b3a4a;stroke-width:2.2;transition:fill .5s;filter:drop-shadow(0 4px 5px rgba(0,0,0,.3))}.sim-eye{fill:#193342}.sim-mouth{fill:none;stroke:#193342;stroke-width:1.5;stroke-linecap:round}.sim-person:focus-visible .sim-head{stroke:#fff;stroke-width:4}
+.sim-test-ring{stroke:#61dff4;fill:none;stroke-width:3.2;stroke-dasharray:4 4;animation:simSpin 1.8s linear infinite;transform-box:fill-box;transform-origin:center}.sim-just-infected .sim-head{animation:simPop .8s ease}.sim-infection-ring{stroke:#ff9066;fill:none;stroke-width:4;animation:simRing 1.3s ease-out both;transform-box:fill-box;transform-origin:center}.sim-new-confirmed .sim-head{stroke:#e9e2ff;stroke-width:3}
+.sim-isolated-bubble{fill:#a9f2e1;stroke:#183040;stroke-width:1.3}.sim-isolated-check{stroke:#123f3a;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}.sim-picked-ring{fill:none;stroke:#fff;stroke-width:1.5;stroke-dasharray:3 3;opacity:.8}
+.sim-transmission{stroke:#ff9163;stroke-width:6;stroke-linecap:round;opacity:0;filter:drop-shadow(0 0 9px #ff866b);animation:simSweep 1.5s ease-out both}.sim-travel-dot{filter:drop-shadow(0 0 9px #ff8b56);opacity:.9}
+.sim-poster-stamp{position:absolute;bottom:17px;left:23px;color:#537789;letter-spacing:1.6px;font-size:9px;font-weight:900;pointer-events:none}
+.sim-sidebar{min-width:0;background:#13293b;border-left:1px solid #2b4555;display:flex;flex-direction:column}
+.sim-story{padding:30px 26px 20px;border-bottom:1px solid #2d4859;min-height:178px}.sim-kicker{display:inline-block;font-size:10px;letter-spacing:1.5px;color:#92e0d6;font-weight:900;margin-bottom:13px}.sim-story h3{font-size:24px;line-height:1.18;letter-spacing:-.8px;margin:0 0 11px;color:#f1faf6}.sim-story p{font-size:12px;line-height:1.75;color:#a6bdc8;margin:0}
+.sim-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:19px 15px 18px;border-bottom:1px solid #2d4859;gap:5px}.sim-stat-grid>div{text-align:center}.sim-stat-grid strong{font-size:25px;font-weight:800;display:block}.sim-stat-grid span{font-size:9px;line-height:1.5;letter-spacing:.3px;color:#9cb5bd}.sim-stat-s{color:#b5f1dc}.sim-stat-h{color:#ffb16e}.sim-stat-c{color:#cd9cf9}.sim-stat-r{color:#9dacc1}
+.sim-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:17px 22px;border-bottom:1px solid #2d4859}.sim-summary>div{border:1px solid #355062;background:#193448;padding:10px 6px;border-radius:6px;text-align:center}.sim-summary strong{font-size:22px;display:block;line-height:1.1;color:#f2faf9}.sim-summary span{font-size:9px;color:#9eb6bc;display:block;margin-top:7px;line-height:1.3}
+.sim-log-box{padding:18px 22px;flex:1}.sim-log-heading{font-size:10px;color:#8bbbc0;letter-spacing:1.5px;font-weight:900;margin-bottom:11px}.sim-log-entry{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(170,206,212,.1);font-size:11px;line-height:1.5;color:#bdcdd4}.sim-log-entry b{color:#a6ecd9}.sim-log-entry span{flex:1}.sim-log-empty{font-size:12px;color:#6d919e;line-height:1.7}
+.sim-inspector{margin:0 22px 22px;padding:12px 13px;color:#a7bfc8;background:#1d3b4d;border-left:2px solid #6ec6bf;font-size:11px;line-height:1.7;min-height:58px}
+.sim-settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;border-top:1px solid #2d4859;padding:22px 25px 24px;background:#152d3f}
+.sim-setting{display:grid;gap:8px;min-width:0}.sim-setting label{font-size:10px;font-weight:900;color:#9dc7cc;letter-spacing:1px}.sim-setting select,.sim-setting button{width:100%;border:1px solid #446678;background:#203f52;color:#edf9f6;font-size:12px;min-height:43px;border-radius:6px;padding:8px 12px;text-align:left;font-weight:800}
+.sim-setting button:hover,.sim-setting select:hover{border-color:#8ddccc}.sim-setting small{color:#849da9;font-size:10px;line-height:1.5}
+.sim-timeline{padding:18px 25px 23px;background:#101f30;border-top:1px solid #294052;display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}.sim-timeline>span{font-size:11px;color:#a4dacc;font-weight:900;white-space:nowrap}.sim-timeline .sim-progress-track{height:5px;background:#2c4555;border-radius:20px;overflow:hidden;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);pointer-events:none}.sim-progress-track>div{height:100%;background:#9fe9dc;transition:width .35s}.sim-time-wrap{position:relative}.sim-time-wrap input{width:100%;position:relative;z-index:1;cursor:pointer;height:16px;appearance:none;background:transparent;margin:0}.sim-time-wrap input::-webkit-slider-thumb{appearance:none;width:15px;height:15px;border:3px solid #153b45;border-radius:50%;background:#c4f6ed;box-shadow:0 0 0 2px #9fdfd4}.sim-time-wrap input::-moz-range-thumb{width:10px;height:10px;border:3px solid #153b45;border-radius:50%;background:#c4f6ed;box-shadow:0 0 0 2px #9fdfd4}.sim-timeline small{font-size:10px;color:#849ba9;white-space:nowrap}
+.sim-legend{display:flex;gap:17px;align-items:center;flex-wrap:wrap;margin:21px 0 7px}.sim-legend span{display:flex;align-items:center;gap:7px;color:#4f6770;font-size:11px;font-weight:800}.sim-legend i{display:inline-block;height:10px;width:10px;border-radius:50%}.sim-legend .obs{height:0;width:22px;border-top:2px solid #6b99a7;border-radius:0}.sim-legend .missing{height:0;width:22px;border-top:2px dashed #d5966d;border-radius:0}
+.sim-boundary{color:#687e81;font-size:12px;line-height:1.8;max-width:1040px;margin:18px 0 0}.sim-boundary strong{color:#304d52}
+@keyframes simRing{0%{opacity:1;transform:scale(.55)}100%{opacity:0;transform:scale(2)}}@keyframes simPop{0%{transform:scale(.55)}50%{transform:scale(1.45)}100%{transform:scale(1)}}@keyframes simSweep{0%{opacity:0;stroke-dasharray:0 600}20%{opacity:1}65%{opacity:.95;stroke-dasharray:600 600}100%{opacity:0;stroke-dasharray:600 600}}@keyframes simSpin{to{transform:rotate(360deg)}}@keyframes simRecord{50%{opacity:.35}}
+@media(max-width:1100px){.sim-section-top{align-items:start;flex-direction:column}.sim-section-top p{max-width:700px}.sim-play-area{grid-template-columns:1fr}.sim-sidebar{border-left:0;border-top:1px solid #2c4555;display:grid;grid-template-columns:1fr 1fr}.sim-story{min-height:0}.sim-stat-grid,.sim-summary{grid-column:2}.sim-stat-grid{grid-row:1}.sim-summary{grid-row:2}.sim-log-box{grid-column:1}.sim-inspector{grid-column:2;margin-top:18px}.sim-screen{min-width:0}.sim-canvas-wrap{max-height:520px}}
+@media(max-width:700px){.sim-toolbar{padding:17px}.sim-toolbar-actions{width:100%}.sim-primary{flex:1}.sim-section-top h2{font-size:36px}.sim-sidebar{display:block}.sim-screen-top{left:12px;right:12px}.sim-screen-tag,.sim-screen-status{font-size:8px;padding:7px 9px}.sim-story{padding:22px}.sim-stat-grid{padding:16px 10px}.sim-summary{padding:16px}.sim-log-box{padding:17px}.sim-inspector{margin:0 17px 20px}.sim-settings{grid-template-columns:1fr;gap:16px;padding:20px}.sim-setting small{display:none}.sim-timeline{grid-template-columns:1fr;gap:12px;padding:20px}.sim-timeline small{display:none}.sim-legend{gap:10px}.sim-legend span{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.sim-record,.sim-test-ring,.sim-infection-ring,.sim-just-infected .sim-head,.sim-transmission{animation:none!important}}
+
+  </style>
   <script src="assets/data.js" defer></script>
   <script src="assets/app.js" defer></script>
+
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -17,7 +66,7 @@
     <div class="header-inner shell">
       <a href="#top" class="logo" aria-label="STAT 236 project, back to top"><span class="logo-signal"><span></span><span></span><span></span></span><span>STAT<span class="logo-emphasis">236</span><small>RESEARCH SHOWCASE</small></span></a>
       <nav aria-label="Primary navigation" class="nav-links">
-        <a href="#question">The question</a><a href="#approach">Approach</a><a href="#explore">Explore results</a><a href="#haslemere">Real contacts</a>
+        <a href="#question">The question</a><a href="#simulation">Watch the simulation</a><a href="#approach">Approach</a><a href="#explore">Explore results</a><a href="#haslemere">Real contacts</a>
       </nav>
       <a class="header-link" href="report.pdf" target="_blank" rel="noopener">Read the paper <span aria-hidden="true">↗</span></a>
     </div>
@@ -30,7 +79,7 @@
           <p class="eyebrow light-eyebrow"><span class="mini-dot"></span> STAT 236 · FALL 2026 · GROUP PROJECT</p>
           <h1>Who should<br />we <em>test</em> when<br />the network<br />is <span class="outlined-word">incomplete?</span></h1>
           <p class="hero-description">A limited testing budget. Hidden infections. Missing contacts. We investigate when network-aware screening helps control simulated epidemics—and when the information it relies on starts to fail.</p>
-          <div class="hero-actions"><a class="btn btn-primary" href="#explore">Explore the findings <span aria-hidden="true">↗</span></a><a class="btn btn-quiet" href="#approach">How it works <span aria-hidden="true">↓</span></a></div>
+          <div class="hero-actions"><a class="btn btn-primary" href="#simulation">▶ Watch the outbreak <span aria-hidden="true">↗</span></a><a class="btn btn-quiet" href="#explore">Explore real results <span aria-hidden="true">↓</span></a></div>
           <p class="hero-footnote">A statistical simulation study · Not a real-world disease forecast</p>
         </div>
         <div class="hero-visual">
@@ -53,8 +102,59 @@
       <div class="three-problems"><article><span class="problem-glyph" aria-hidden="true">◎</span><h3>Hidden states</h3><p>A person can be infectious without a diagnosis. Testing decisions depend on uncertain estimates, not known infection states.</p></article><article><span class="problem-glyph" aria-hidden="true">⌁</span><h3>Missing edges</h3><p>Transmission follows the complete simulated contact network; decision-makers see only a subset of its links.</p></article><article><span class="problem-glyph" aria-hidden="true">◷</span><h3>Limited resources</h3><p>With only a few tests available, every choice has an opportunity cost: whom do we test first?</p></article></div>
     </section>
 
+
+    <!-- Classroom animation: explicitly illustrative, not empirical simulation data. -->
+    <section id="simulation" class="section simulation-section">
+      <div class="shell">
+        <div class="section-kicker"><span>02</span><span>WATCH AN OUTBREAK UNFOLD</span></div>
+        <div class="sim-section-top">
+          <h2>One hidden infection.<br /><em>A whole network at risk.</em></h2>
+          <p>Meet 30 little people in three communities. Press play to watch contacts, hidden infections, testing, and isolation change their story. Then switch what the testing policy can see.</p>
+        </div>
+        <div class="sim-theater" aria-label="Interactive animated network epidemic illustration">
+          <div class="sim-toolbar">
+            <div class="sim-brand"><span class="sim-record" aria-hidden="true"></span> EPIDEMIC STORYBOARD <small>ILLUSTRATIVE MINI-SIMULATION</small></div>
+            <div class="sim-toolbar-actions">
+              <button type="button" id="sim-play" class="sim-control sim-primary" aria-pressed="false">▶ Play the story</button>
+              <button type="button" id="sim-next" class="sim-control sim-small">Next day →</button>
+              <button type="button" id="sim-restart" class="sim-control sim-small">↺ Restart</button>
+            </div>
+          </div>
+          <div class="sim-play-area">
+            <div class="sim-screen">
+              <div class="sim-screen-top"><span class="sim-screen-tag">● <span>LIVE STORY</span> · DAY <b id="sim-day">0</b></span><span class="sim-screen-status" id="sim-view-label">Narrator view</span></div>
+              <div class="sim-canvas-wrap">
+                <svg id="sim-stage" viewBox="0 0 910 515" role="img" aria-label="Animated 30-person contact network arranged into three communities, with susceptible, hidden-infectious, isolated, and recovered people. Observed and missing contacts are distinguished.">
+                  <g id="sim-community-layer"></g>
+                  <g id="sim-edge-layer"></g>
+                  <g id="sim-effect-layer"></g>
+                  <g id="sim-people-layer"></g>
+                </svg>
+              </div>
+              <span class="sim-poster-stamp">TRUE TRANSMISSION USES EVERY EDGE</span>
+            </div>
+            <aside class="sim-sidebar" aria-label="Animation narration">
+              <div class="sim-story"><span class="sim-kicker">THE STORY SO FAR</span><h3 id="sim-story-title">A hidden infection enters the network</h3><p id="sim-story-body">Two people are infectious without knowing it. One confirmed case is already isolated.</p></div>
+              <div class="sim-stat-grid" aria-label="Current SHCR states"><div><strong class="sim-stat-s" id="sim-count-s">27</strong><span>Susceptible</span></div><div><strong class="sim-stat-h" id="sim-count-h">2</strong><span>Hidden</span></div><div><strong class="sim-stat-c" id="sim-count-c">1</strong><span>Isolated</span></div><div><strong class="sim-stat-r" id="sim-count-r">0</strong><span>Recovered</span></div></div>
+              <div class="sim-summary" aria-label="Events this day"><div><strong id="sim-tested">0</strong><span>Tested today</span></div><div><strong id="sim-detected">0</strong><span>Newly isolated</span></div><div><strong id="sim-new-infections">0</strong><span>New infections</span></div></div>
+              <div class="sim-log-box"><div class="sim-log-heading">RECENT EVENTS</div><div id="sim-log" aria-live="polite"><p class="sim-log-empty">Events will appear as the story unfolds.</p></div></div>
+              <p id="sim-inspector" class="sim-inspector">Click a person to inspect their status and visible contacts.</p>
+            </aside>
+          </div>
+          <div class="sim-settings" aria-label="Simulation settings">
+            <div class="sim-setting"><label for="sim-policy">TESTING STRATEGY</label><select id="sim-policy"><option value="aware" selected>Contact-aware heuristic</option><option value="random">Random screening</option><option value="none">No testing</option></select><small>The toy heuristic uses known confirmations and visible contacts; it is not the paper's fitted optimizer.</small></div>
+            <div class="sim-setting"><label for="sim-visibility">CONTACTS THE POLICY CAN SEE</label><select id="sim-visibility"><option value="100" selected>100% of edges</option><option value="50">50% of edges</option><option value="25">25% of edges</option></select><small>Missing edges remain available for actual transmission.</small></div>
+            <div class="sim-setting"><label for="sim-view">WHOSE PERSPECTIVE?</label><button type="button" id="sim-view">⇄ Switch narrator / policy view</button><small id="sim-view-explain">Orange nodes and dashed links reveal information the policy does not know.</small></div>
+          </div>
+          <div class="sim-timeline"><span id="sim-day-tiny">DAY 0 / 14</span><div class="sim-time-wrap"><div class="sim-progress-track"><div id="sim-progress" style="width:0%"></div></div><input type="range" id="sim-scrub" min="0" max="14" step="1" value="0" aria-label="Scrub to a day in the illustration" /></div><small>DRAG TO REPLAY</small></div>
+        </div>
+        <div class="sim-legend" aria-label="Animation legend"><span><i style="background:#b5f1dc"></i>Susceptible</span><span><i style="background:#ffb16e"></i>Hidden infectious</span><span><i style="background:#cd9cf9"></i>Confirmed / isolated</span><span><i style="background:#91a2b7"></i>Recovered</span><span><i class="obs"></i>Observed edge</span><span><i class="missing"></i>Unobserved edge (narrator only)</span></div>
+        <p class="sim-boundary"><strong>Important: this is a teaching animation, not one of our reported experiments.</strong> It uses a small 30-person toy graph, simplified transmissions and perfect test detection, and a contact-aware illustrative heuristic. We do <strong>not</strong> use this animated run to claim a strategy is superior. The research results below use the full 50-day SBM and Haslemere experiments from the paper.</p>
+      </div>
+    </section>
+
     <section id="approach" class="section approach-section">
-      <div class="shell"><div class="section-kicker on-dark"><span>02</span><span>THE APPROACH</span></div><div class="approach-heading"><div><h2>From a messy network<br />to a <em>ranked test list.</em></h2></div><p>We combine an approximate Bayesian filter, a simulation-trained infection-risk model, and a simple budget-constrained selection rule.</p></div>
+      <div class="shell"><div class="section-kicker on-dark"><span>03</span><span>THE APPROACH</span></div><div class="approach-heading"><div><h2>From a messy network<br />to a <em>ranked test list.</em></h2></div><p>We combine an approximate Bayesian filter, a simulation-trained infection-risk model, and a simple budget-constrained selection rule.</p></div>
         <div class="process-row">
           <div class="process-step"><span class="step-num">01 / OBSERVE</span><div class="process-icon"><svg viewBox="0 0 100 80" aria-hidden="true"><path d="M16 51L42 20L76 34L62 66L16 51M42 20L62 66"/><circle cx="16" cy="51" r="6"/><circle cx="42" cy="20" r="6"/><circle cx="76" cy="34" r="6"/><circle cx="62" cy="66" r="6"/></svg></div><h3>Observe contacts</h3><p>Use past contact information, even when some edges are missing.</p></div>
           <div class="process-arrow" aria-hidden="true">→</div>
@@ -69,7 +169,7 @@
     </section>
 
     <section id="explore" class="section results-section shell">
-      <div class="section-kicker"><span>03</span><span>EXPLORE THE EVIDENCE</span></div>
+      <div class="section-kicker"><span>04</span><span>EXPLORE THE EVIDENCE</span></div>
       <div class="results-head"><div><h2>What happens when<br /><em>contacts disappear?</em></h2><p class="sublead">Explore the actual simulation averages across community strengths and levels of contact visibility.</p></div><div class="key-bubble"><span>KEY DISTINCTION</span><p>We hide edges <em>from the policy</em>, not from disease transmission.</p></div></div>
       <div class="explorer">
         <div class="explorer-top"><div><span class="mini-eyebrow">INTERACTIVE RESULT EXPLORER</span><h3>Static stochastic block model</h3><p>180 people · 3 equal communities · expected degree 8 · 20 tests/day</p></div><span class="data-tag"><span></span> DATA FROM THE PROJECT</span></div>
@@ -85,7 +185,7 @@
     </section>
 
     <section id="haslemere" class="section haslemere-section">
-      <div class="shell"><div class="section-kicker on-dark"><span>04</span><span>REAL CONTACTS, SIMULATED EPIDEMICS</span></div><div class="haslemere-head"><div><h2>Three days of real contacts.<br /><em>Fifty days of simulation.</em></h2><p>We use the measured Haslemere proximity dataset to build a time-varying contact network. After the first three recorded days, entire observed daytime sequences are independently resampled to extend the study horizon.</p></div><div class="location-tag"><span class="location-marker">⌖</span><div><strong>Haslemere, England</strong><small>BBC Four Pandemic contact study, 2018</small></div></div></div>
+      <div class="shell"><div class="section-kicker on-dark"><span>05</span><span>REAL CONTACTS, SIMULATED EPIDEMICS</span></div><div class="haslemere-head"><div><h2>Three days of real contacts.<br /><em>Fifty days of simulation.</em></h2><p>We use the measured Haslemere proximity dataset to build a time-varying contact network. After the first three recorded days, entire observed daytime sequences are independently resampled to extend the study horizon.</p></div><div class="location-tag"><span class="location-marker">⌖</span><div><strong>Haslemere, England</strong><small>BBC Four Pandemic contact study, 2018</small></div></div></div>
         <div class="time-illustration"><div class="timeline-title"><span>CONTACT SEQUENCE USED BY THE SIMULATOR</span><span>5-MINUTE RESOLUTION</span></div><div class="timeline-grid"><div class="time-block measured"><strong>DAY 01</strong><span>Recorded</span></div><div class="time-block measured"><strong>DAY 02</strong><span>Recorded</span></div><div class="time-block measured"><strong>DAY 03</strong><span>Recorded</span></div><div class="time-break" aria-hidden="true">···</div><div class="time-block resampled"><strong>DAY 04</strong><span>Resampled</span></div><div class="time-block resampled"><strong>DAY 05</strong><span>Resampled</span></div><div class="time-break" aria-hidden="true">···</div><div class="time-block resampled final-block"><strong>DAY 50</strong><span>Resampled</span></div></div><p>Only Days 1–3 are measured. Days 4–50 reuse a randomly chosen whole-day contact sequence from those three days; they are <strong>not</strong> newly observed contacts. Every infection in this analysis is simulated.</p></div>
         <div class="haslemere-stats"><div><strong>469</strong><span>Participants</span></div><div><strong>17,363</strong><span>Qualifying proximity records</span></div><div><strong>1,262</strong><span>Distinct contact pairs</span></div><div><strong>12</strong><span>Paired simulated epidemics</span></div></div>
         <div class="haslemere-compare"><div class="haslemere-copy"><span class="mini-eyebrow light-mini">50-DAY HASLEMERE EXTENSION</span><h3>Is a more recent contact<br />always more useful?</h3><p>Both fitted policies use the same infection-risk model and testing budget. One weights recent contacts more heavily; the other uses cumulative past contact history.</p><div class="large-diff"><strong>+0.11 <span>pp</span></strong><span>Recency-weighted minus cumulative-history optimizer</span></div><p class="interval">Paired 95% MC interval: [−1.52, +1.73] pp</p><p class="compare-verdict">No demonstrated advantage from recency weighting.</p></div>
@@ -94,11 +194,225 @@
       </div>
     </section>
 
-    <section class="section closing-section shell" id="takeaways"><div class="section-kicker"><span>05</span><span>WHAT WE LEARNED</span></div><div class="closing-grid"><div><h2>The best decision depends on <em>what you can actually see.</em></h2><p class="closing-lead">Network-aware optimization can reduce simulated infections relative to untargeted testing. But an advanced scoring model isn't automatically better than a simpler adaptive rule when contacts are missing.</p><a class="btn btn-dark" href="report.pdf" target="_blank" rel="noopener">Read the full 19-page report <span aria-hidden="true">↗</span></a></div><div class="takeaways"><article><span>01</span><div><h3>Accuracy ≠ policy success.</h3><p>Estimating hidden infections more accurately doesn't necessarily select the people whose tests prevent the most transmission.</p></div></article><article><span>02</span><div><h3>Missing contacts are consequential.</h3><p>Data gaps often reduce simulated control performance, but neither compared policy is consistently the most robust.</p></div></article><article><span>03</span><div><h3>Timing deserves careful evidence.</h3><p>Under the day-block contact extension, recency-weighting does not outperform cumulative-history weighting decisively.</p></div></article></div></div>
+    <section class="section closing-section shell" id="takeaways"><div class="section-kicker"><span>06</span><span>WHAT WE LEARNED</span></div><div class="closing-grid"><div><h2>The best decision depends on <em>what you can actually see.</em></h2><p class="closing-lead">Network-aware optimization can reduce simulated infections relative to untargeted testing. But an advanced scoring model isn't automatically better than a simpler adaptive rule when contacts are missing.</p><a class="btn btn-dark" href="report.pdf" target="_blank" rel="noopener">Read the full 19-page report <span aria-hidden="true">↗</span></a></div><div class="takeaways"><article><span>01</span><div><h3>Accuracy ≠ policy success.</h3><p>Estimating hidden infections more accurately doesn't necessarily select the people whose tests prevent the most transmission.</p></div></article><article><span>02</span><div><h3>Missing contacts are consequential.</h3><p>Data gaps often reduce simulated control performance, but neither compared policy is consistently the most robust.</p></div></article><article><span>03</span><div><h3>Timing deserves careful evidence.</h3><p>Under the day-block contact extension, recency-weighting does not outperform cumulative-history weighting decisively.</p></div></article></div></div>
       <div class="caveat"><span class="caveat-icon">!</span><p><strong>Interpretation boundary.</strong> Haslemere proximity observations cover a selected sample and just three measured days. Future contacts are resampled; disease states, testing outcomes, and transmission parameters are simulated or assumed. The one-step optimizer ignores downstream cascades. These results are methodological comparisons, not public-health policy recommendations.</p></div>
       <div class="resources"><div><span class="mini-eyebrow">GO DEEPER</span><h3>Paper, figures & reproducibility</h3></div><div class="resource-links"><a href="report.pdf" target="_blank" rel="noopener"><span class="resource-icon">↗</span><span><strong>Full project report</strong><small>PDF · Methods, assumptions, tables, limitations</small></span></a><a href="data/optimized_sbm_summary.csv" download><span class="resource-icon">↓</span><span><strong>Static-SBM result data</strong><small>CSV · Policy outcomes by community and visibility</small></span></a><a href="data/extended_haslemere_summary.csv" download><span class="resource-icon">↓</span><span><strong>Extended Haslemere result data</strong><small>CSV · Simulation outcomes across policies</small></span></a></div></div>
     </section>
   </main>
   <footer class="site-footer"><div class="shell footer-layout"><div><span class="footer-logo">STAT<span>236</span> / FALL 2026</span><p>Network-Aware Testing Allocation for Infectious Disease Control Under Limited Resources</p></div><div><span>RESEARCH TEAM</span><p>Yinpeng Cai · Aniket Jain · Annie Liang · Zidan Luo</p><small>Made for the STAT 236 final project showcase.</small></div><a href="#top" class="back-to-top">Back to top ↑</a></div></footer>
+<script>
+/*
+ * Animated, self-contained classroom illustration for STAT 236.
+ * IMPORTANT: This is a small deterministic toy demonstration, NOT a paper result.
+ * Decisions rely on the observed contact graph and known confirmations only.
+ * The narrator can reveal true hidden states and unobserved contacts.
+ */
+(function () {
+  'use strict';
+  const svg = document.getElementById('sim-stage');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = id => document.getElementById(id);
+  const TOTAL = 30, DAYS = 14, TESTS = 2;
+  const centers = [{x:161,y:257},{x:460,y:257},{x:756,y:257}];
+  const colors = {S:'#b5f1dc', H:'#ffb16e', C:'#cd9cf9', R:'#91a2b7'};
+  const hash = (a,b,c=0) => {
+    let x = Math.imul(a + 1, 374761393) ^ Math.imul(b + 7, 668265263) ^ Math.imul(c + 13, 1442695041);
+    x = Math.imul(x ^ (x >>> 13), 1274126177);
+    return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+  };
+  const nodes = Array.from({length:TOTAL},(_,i)=>{
+    const g = Math.floor(i/10), j=i%10;
+    const theta = (j * Math.PI * 2/10) + .2 + g*.25;
+    const radius = j%2===0 ? 91 : 66;
+    return {i,g,x:centers[g].x + Math.cos(theta)*radius,y:centers[g].y + Math.sin(theta)*radius*.98};
+  });
+  const edges=[];
+  const addEdge=(a,b)=>{if(a>b)[a,b]=[b,a];if(!edges.some(e=>e.a===a&&e.b===b))edges.push({a,b,observed:true});};
+  for (let i=0;i<TOTAL;i++)for (let j=i+1;j<TOTAL;j++) {
+    if(nodes[i].g===nodes[j].g && hash(i,j,11)<.43)addEdge(i,j);
+  }
+  [[3,4],[4,5],[1,7],[10,18],[12,16],[20,26],[21,29],[7,10],[9,12],[16,23],[18,25],[2,28]].forEach(([a,b])=>addEdge(a,b));
+  const adjacency=Array.from({length:TOTAL},()=>[]);
+  edges.forEach((e,k)=>{adjacency[e.a].push({to:e.b,k});adjacency[e.b].push({to:e.a,k});});
+  const firstH=adjacency[4].find(x=>x.to<10)?.to ?? 3;
+  const INITIAL_H=[firstH,14];
+
+  let policy='aware', visibility=100, narrator=true, day=0;
+  let frames=[], timer=null, picked=null;
+  function el(name,attributes={},text=null) {
+    const n=document.createElementNS(NS,name);
+    for (const [k,v] of Object.entries(attributes))n.setAttribute(k,String(v));
+    if(text!==null)n.textContent=text;
+    return n;
+  }
+  function setTxt(id,text){$(id).textContent=String(text);}
+  function buildFrames(){
+    edges.forEach((e,k)=>{e.observed=hash(e.a,e.b,27)<visibility/100;});
+    const state=Array(TOTAL).fill('S');
+    const infectedOn=Array(TOTAL).fill(-1), confirmedOn=Array(TOTAL).fill(-1), lastTest=Array(TOTAL).fill(-100);
+    INITIAL_H.forEach(i=>{state[i]='H';infectedOn[i]=0;});
+    state[4]='C';confirmedOn[4]=0;
+    const save=(d,ev)=>({
+      day:d,state:[...state],lastTest:[...lastTest],
+      counts:{S:state.filter(s=>s==='S').length,H:state.filter(s=>s==='H').length,C:state.filter(s=>s==='C').length,R:state.filter(s=>s==='R').length},
+      events:ev
+    });
+    frames=[save(0,{tested:[],positives:[],transmissions:[],recovered:[],day:0})];
+    for(let d=1;d<=DAYS;d++){
+      const ev={tested:[],positives:[],transmissions:[],recovered:[],day:d};
+      const candidates=[];
+      for(let i=0;i<TOTAL;i++){
+        if(state[i]==='C'||d-lastTest[i]<3) continue; // recovered is latent to the policy
+        const contacts=adjacency[i].filter(x=>edges[x.k].observed);
+        const exposure=contacts.filter(x=>state[x.to]==='C').length;
+        const secondHop=new Set();
+        contacts.forEach(x=>adjacency[x.to].filter(y=>edges[y.k].observed&&state[y.to]==='C').forEach(y=>secondHop.add(y.to)));
+        const jitter=hash(d,i,991);
+        const score=policy==='random' ? jitter : 3.6*exposure + 1.1*secondHop.size + .17*contacts.length + .08*jitter;
+        candidates.push({i,score});
+      }
+      if(policy!=='none'){
+        candidates.sort((a,b)=>b.score-a.score);
+        candidates.slice(0,TESTS).forEach(c=>{
+          const i=c.i;ev.tested.push(i);lastTest[i]=d;
+          if(state[i]==='H'){
+            // Perfect diagnostic sensitivity here is a pedagogical simplification.
+            state[i]='C';confirmedOn[i]=d;ev.positives.push(i);
+          }
+        });
+      }
+      const infectious=state.map((s,i)=>s==='H'?i:-1).filter(i=>i>=0);
+      const newlyInfected=new Set();
+      edges.forEach((e,k)=>{
+        if(hash(d,k,311)>.82)return; // contact occurs today
+        let src=-1,dst=-1;
+        if(infectious.includes(e.a)&&state[e.b]==='S'){src=e.a;dst=e.b;}
+        else if(infectious.includes(e.b)&&state[e.a]==='S'){src=e.b;dst=e.a;}
+        if(src<0||newlyInfected.has(dst))return;
+        if(hash(d*97+src,dst,127)<.28){newlyInfected.add(dst);ev.transmissions.push({from:src,to:dst,edge:k,wasObserved:e.observed});}
+      });
+      // Infections are added at the end of the day, and cannot transmit on that day.
+      newlyInfected.forEach(i=>{state[i]='H';infectedOn[i]=d;});
+      for(let i=0;i<TOTAL;i++){
+        if(state[i]==='H' && d-infectedOn[i]>=5){state[i]='R';ev.recovered.push(i);}
+        if(state[i]==='C' && d-confirmedOn[i]>=4){state[i]='R';ev.recovered.push(i);}
+      }
+      frames.push(save(d,ev));
+    }
+  }
+
+  const statusNames={S:'Susceptible',H:'Hidden infectious',C:'Confirmed & isolated',R:'Recovered'};
+  function draw(frame,animate){
+    const bg=$('sim-community-layer'),lines=$('sim-edge-layer'),effects=$('sim-effect-layer'),persons=$('sim-people-layer');
+    bg.replaceChildren();lines.replaceChildren();effects.replaceChildren();persons.replaceChildren();
+    centers.forEach((c,g)=>{
+      bg.appendChild(el('ellipse',{cx:c.x,cy:c.y,rx:127,ry:142,class:'sim-community-halo sim-community-'+g}));
+      bg.appendChild(el('text',{x:c.x,y:94,'text-anchor':'middle',class:'sim-community-name'},`COMMUNITY ${String.fromCharCode(65+g)}`));
+      bg.appendChild(el('text',{x:c.x,y:114,'text-anchor':'middle',class:'sim-community-sub'},'10 PEOPLE'));
+    });
+    edges.forEach(e=>{
+      if(!e.observed&&!narrator)return;
+      const a=nodes[e.a],b=nodes[e.b];
+      lines.appendChild(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:e.observed?'sim-edge sim-observed':'sim-edge sim-unobserved'}));
+    });
+    const ev=frame.events;
+    if(animate&&narrator&&ev?.transmissions?.length){
+      ev.transmissions.forEach((e,k)=>{
+        const a=nodes[e.from],b=nodes[e.to];
+        const l=el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'sim-transmission',style:`animation-delay:${(k*.12).toFixed(2)}s`});
+        effects.appendChild(l);
+        const dot=el('circle',{r:5,fill:'#ff9772',class:'sim-travel-dot'});
+        const move=el('animateMotion',{dur:'.95s',begin:`${(k*.12).toFixed(2)}s`,fill:'freeze',path:`M ${a.x} ${a.y} L ${b.x} ${b.y}`});
+        dot.appendChild(move);effects.appendChild(dot);
+      });
+    }
+    nodes.forEach(n=>{
+      const s=frame.state[n.i],test=ev.tested.includes(n.i),positive=ev.positives.includes(n.i);
+      const newInfection=ev.transmissions.some(e=>e.to===n.i);
+      const shown=(s==='H'&&!narrator)?'S':s;
+      const g=el('g',{class:`sim-person sim-state-${shown}${test?' sim-has-test':''}${positive?' sim-new-confirmed':''}${newInfection&&animate?' sim-just-infected':''}`,'data-node':n.i,tabindex:0,role:'button','aria-label':`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Undiagnosed; actual state hidden':statusNames[s])}${test?', tested today':''}`});
+      if(test)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:21,class:'sim-test-ring'}));
+      if(newInfection&&animate&&narrator)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:24,class:'sim-infection-ring'}));
+      g.appendChild(el('circle',{cx:n.x,cy:n.y,r:12.6,fill:colors[shown],class:'sim-head'}));
+      g.appendChild(el('circle',{cx:n.x-3.7,cy:n.y-2,r:1.25,class:'sim-eye'}));
+      g.appendChild(el('circle',{cx:n.x+3.7,cy:n.y-2,r:1.25,class:'sim-eye'}));
+      const mouth=shown==='H'?'M -3 4 Q 0 1 3 4':shown==='C'?'M -3 3 L 3 3':'M -3 2 Q 0 6 3 2';
+      g.appendChild(el('path',{d:mouth,transform:`translate(${n.x} ${n.y})`,class:'sim-mouth'}));
+      if(shown==='C'){
+        g.appendChild(el('circle',{cx:n.x+11,cy:n.y-10,r:6.8,class:'sim-isolated-bubble'}));
+        g.appendChild(el('path',{d:`M ${n.x+8.5} ${n.y-10} L ${n.x+10.5} ${n.y-8} L ${n.x+14} ${n.y-12}`,class:'sim-isolated-check'}));
+      }
+      if(picked===n.i)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:17,class:'sim-picked-ring'}));
+      const t=el('title');t.textContent=`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Unknown to policy':statusNames[s])}${test?' · selected for testing':''}`;g.appendChild(t);
+      g.addEventListener('click',()=>{picked=n.i;draw(frame,false);});
+      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();picked=n.i;draw(frame,false);}});
+      persons.appendChild(g);
+    });
+    setTxt('sim-day',frame.day);
+    setTxt('sim-day-tiny',`DAY ${frame.day} / ${DAYS}`);
+    setTxt('sim-count-s',frame.counts.S);
+    setTxt('sim-count-h',narrator?frame.counts.H:'?');
+    setTxt('sim-count-c',frame.counts.C);
+    setTxt('sim-count-r',frame.counts.R);
+    setTxt('sim-tested',ev.tested.length);
+    setTxt('sim-detected',ev.positives.length);
+    setTxt('sim-new-infections',narrator?ev.transmissions.length:'?');
+    $('sim-scrub').value=frame.day;
+    $('sim-progress').style.width=(frame.day/DAYS*100)+'%';
+    setTxt('sim-view-label',narrator?'Narrator view':'Policy view');
+    setTxt('sim-view-explain',narrator?'Orange nodes and dashed links reveal information the policy does NOT know.':'Hidden infections look susceptible; unobserved links disappear. This is what the policy can use.');
+    const header=frame.day===0?'A hidden infection enters the network':ev.positives.length?`${ev.positives.length} hidden case${ev.positives.length>1?'s':''} detected and isolated`:ev.transmissions.length?`${ev.transmissions.length} new infection${ev.transmissions.length>1?'s':''} after contact`:'The network changes, even without new cases';
+    setTxt('sim-story-title',narrator?header:'The policy sees only diagnoses');
+    let body;
+    if(frame.day===0)body=`Two people are infectious without knowing it. One confirmed case is already isolated. Run the animation to watch testing, contact, and spread.`;
+    else{
+      const testing=policy==='none'?'No tests were administered.':`${ev.tested.length} eligible people were tested; ${ev.positives.length} hidden infection${ev.positives.length===1?' was':'s were'} found and isolated.`;
+      body=`${testing} Meanwhile ${ev.transmissions.length} new infection${ev.transmissions.length===1?' occurred':'s occurred'} along the true network, including contacts the policy may not see.`;
+    }
+    setTxt('sim-story-body',narrator?body:`${ev.tested.length} tests were administered and ${ev.positives.length} new positive cases were isolated today. The policy cannot observe undiagnosed infection states, unseen edges, or the true number of new infections.`);
+    const narrative=[];
+    for(let d=Math.max(1,frame.day-2);d<=frame.day;d++){
+      if(!frames[d])continue;
+      const e=frames[d].events;
+      narrative.unshift({day:d,t:narrator?`${e.tested.length} tested · ${e.positives.length} isolated · ${e.transmissions.length} new infections`:`${e.tested.length} tested · ${e.positives.length} isolated · other infections unknown`});
+    }
+    const log=$('sim-log');log.replaceChildren();
+    if(!narrative.length){const p=document.createElement('p');p.className='sim-log-empty';p.textContent='Events will appear here as the story unfolds.';log.appendChild(p);}
+    else narrative.forEach(it=>{const row=document.createElement('div');row.className='sim-log-entry';const label=document.createElement('b');label.textContent=`D${it.day}`;const desc=document.createElement('span');desc.textContent=it.t;row.append(label,desc);log.appendChild(row);});
+    if(picked!==null){
+      const s=frame.state[picked], degree=adjacency[picked].filter(x=>edges[x.k].observed).length;
+      setTxt('sim-inspector',`Person ${picked+1}: ${narrator?statusNames[s]:(s==='H'?'not known to be infectious':statusNames[s])}. ${degree} visible contact${degree===1?'':'s'}.${ev.tested.includes(picked)?' Selected for a test today.':''}`);
+    }else setTxt('sim-inspector','Click a person to inspect their status and visible contacts.');
+    $('sim-play').textContent=timer?'Ⅱ  Pause':'▶  Play the story';
+    $('sim-play').setAttribute('aria-pressed',String(Boolean(timer)));
+  }
+  function jump(next,animate=false){
+    day=Math.max(0,Math.min(DAYS,next));
+    draw(frames[day],animate);
+    if(day>=DAYS)stop();
+  }
+  function stop(){if(timer){clearInterval(timer);timer=null;}$('sim-play').textContent='▶  Play the story';$('sim-play').setAttribute('aria-pressed','false');}
+  function play(){
+    if(timer){stop();return;}
+    if(day>=DAYS)jump(0);
+    timer=setInterval(()=>jump(day+1,true),1650);
+    $('sim-play').textContent='Ⅱ  Pause';$('sim-play').setAttribute('aria-pressed','true');
+    jump(day+1,true);
+  }
+  function reset(){stop();picked=null;buildFrames();jump(0);}
+  $('sim-play').addEventListener('click',play);
+  $('sim-next').addEventListener('click',()=>{stop();jump(day===DAYS?0:day+1,true);});
+  $('sim-restart').addEventListener('click',reset);
+  $('sim-scrub').addEventListener('input',e=>{stop();jump(Number(e.target.value),false);});
+  $('sim-policy').addEventListener('change',e=>{policy=e.target.value;reset();});
+  $('sim-visibility').addEventListener('change',e=>{visibility=Number(e.target.value);reset();});
+  $('sim-view').addEventListener('click',()=>{narrator=!narrator;draw(frames[day],false);});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  // Honor reduced motion: offer manual stepping and pause autoplay by default.
+  buildFrames();jump(0);
+})();
+
+</script>
 </body>
 </html>
