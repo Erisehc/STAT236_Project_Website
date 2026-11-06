@@ -55,6 +55,26 @@
 @media(max-width:700px){.sim-toolbar{padding:17px}.sim-toolbar-actions{width:100%}.sim-primary{flex:1}.sim-section-top h2{font-size:36px}.sim-sidebar{display:block}.sim-screen-top{left:12px;right:12px}.sim-screen-tag,.sim-screen-status{font-size:8px;padding:7px 9px}.sim-story{padding:22px}.sim-stat-grid{padding:16px 10px}.sim-summary{padding:16px}.sim-log-box{padding:17px}.sim-inspector{margin:0 17px 20px}.sim-settings{grid-template-columns:1fr;gap:16px;padding:20px}.sim-setting small{display:none}.sim-timeline{grid-template-columns:1fr;gap:12px;padding:20px}.sim-timeline small{display:none}.sim-legend{gap:10px}.sim-legend span{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.sim-record,.sim-test-ring,.sim-infection-ring,.sim-just-infected .sim-head,.sim-transmission{animation:none!important}}
 
+
+/* Smooth-playback update: persistent node/edge elements, no re-spawning heads. */
+.sim-head{transition:fill .68s cubic-bezier(.2,.8,.2,1),stroke .45s ease;transform-box:fill-box;transform-origin:center;}
+.sim-edge{transition:opacity .48s ease,stroke .48s ease;}
+.sim-edge-off{opacity:0!important;}
+.sim-person{transition:opacity .35s ease;}
+.sim-test-ring{opacity:0;animation:none;transform-box:fill-box;transform-origin:center;transition:opacity .3s ease;}
+.sim-test-ring.sim-active{opacity:1;animation:simSpin 2.8s linear infinite;}
+.sim-infection-ring{opacity:0;animation:none;transform-box:fill-box;transform-origin:center;pointer-events:none;}
+.sim-infection-ring.sim-active{animation:simRing 1.25s ease-out both;}
+.sim-isolated-bubble,.sim-isolated-check{opacity:0;transition:opacity .38s ease;}
+.sim-isolated-bubble.sim-active,.sim-isolated-check.sim-active{opacity:1;}
+.sim-picked-ring{opacity:0;transition:opacity .2s ease;}
+.sim-picked-ring.sim-active{opacity:.85;}
+@media(prefers-reduced-motion:reduce){
+  .sim-head,.sim-edge,.sim-person,.sim-test-ring,.sim-isolated-bubble,.sim-isolated-check,.sim-picked-ring{transition:none!important;}
+  .sim-test-ring.sim-active,.sim-infection-ring.sim-active{animation:none!important;}
+  .sim-infection-ring.sim-active{opacity:.7;}
+}
+
   </style>
   <script src="assets/data.js" defer></script>
   <script src="assets/app.js" defer></script>
@@ -200,7 +220,7 @@
     </section>
   </main>
   <footer class="site-footer"><div class="shell footer-layout"><div><span class="footer-logo">STAT<span>236</span> / FALL 2026</span><p>Network-Aware Testing Allocation for Infectious Disease Control Under Limited Resources</p></div><div><span>RESEARCH TEAM</span><p>Yinpeng Cai · Aniket Jain · Annie Liang · Zidan Luo</p><small>Made for the STAT 236 final project showcase.</small></div><a href="#top" class="back-to-top">Back to top ↑</a></div></footer>
-<script>
+  <script>
 /*
  * Animated, self-contained classroom illustration for STAT 236.
  * IMPORTANT: This is a small deterministic toy demonstration, NOT a paper result.
@@ -303,51 +323,92 @@
   }
 
   const statusNames={S:'Susceptible',H:'Hidden infectious',C:'Confirmed & isolated',R:'Recovered'};
-  function draw(frame,animate){
-    const bg=$('sim-community-layer'),lines=$('sim-edge-layer'),effects=$('sim-effect-layer'),persons=$('sim-people-layer');
-    bg.replaceChildren();lines.replaceChildren();effects.replaceChildren();persons.replaceChildren();
+  const scene={ready:false,edgeEls:[],personEls:[]};
+
+  /* Draw the network ONCE. DOM identities and coordinates stay fixed between days.
+     Previously every tick destroyed and recreated all 30 SVG node groups. Combined
+     with a scale animation around SVG (0, 0), that made faces jump across the stage. */
+  function initScene(){
+    if(scene.ready)return;
+    const bg=$('sim-community-layer'),lines=$('sim-edge-layer'),persons=$('sim-people-layer');
     centers.forEach((c,g)=>{
       bg.appendChild(el('ellipse',{cx:c.x,cy:c.y,rx:127,ry:142,class:'sim-community-halo sim-community-'+g}));
       bg.appendChild(el('text',{x:c.x,y:94,'text-anchor':'middle',class:'sim-community-name'},`COMMUNITY ${String.fromCharCode(65+g)}`));
       bg.appendChild(el('text',{x:c.x,y:114,'text-anchor':'middle',class:'sim-community-sub'},'10 PEOPLE'));
     });
     edges.forEach(e=>{
-      if(!e.observed&&!narrator)return;
       const a=nodes[e.a],b=nodes[e.b];
-      lines.appendChild(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:e.observed?'sim-edge sim-observed':'sim-edge sim-unobserved'}));
+      const line=el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'sim-edge sim-observed'});
+      lines.appendChild(line);scene.edgeEls.push(line);
+    });
+    nodes.forEach(n=>{
+      // Position the node group once. All circles, eyes and mouth use LOCAL coordinates.
+      const g=el('g',{class:'sim-person',transform:`translate(${n.x} ${n.y})`,'data-node':n.i,tabindex:0,role:'button'});
+      const testRing=el('circle',{cx:0,cy:0,r:21,class:'sim-test-ring'});
+      const infectionRing=el('circle',{cx:0,cy:0,r:24,class:'sim-infection-ring'});
+      const head=el('circle',{cx:0,cy:0,r:12.6,fill:colors.S,class:'sim-head'});
+      const eyeLeft=el('circle',{cx:-3.7,cy:-2,r:1.25,class:'sim-eye'});
+      const eyeRight=el('circle',{cx:3.7,cy:-2,r:1.25,class:'sim-eye'});
+      const mouth=el('path',{d:'M -3 2 Q 0 6 3 2',class:'sim-mouth'});
+      const bubble=el('circle',{cx:11,cy:-10,r:6.8,class:'sim-isolated-bubble'});
+      const check=el('path',{d:'M 8.5 -10 L 10.5 -8 L 14 -12',class:'sim-isolated-check'});
+      const pickedRing=el('circle',{cx:0,cy:0,r:17,class:'sim-picked-ring'});
+      const tooltip=el('title');
+      g.append(testRing,infectionRing,head,eyeLeft,eyeRight,mouth,bubble,check,pickedRing,tooltip);
+      g.addEventListener('click',()=>{picked=n.i;draw(frames[day],false);});
+      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();picked=n.i;draw(frames[day],false);}});
+      persons.appendChild(g);
+      scene.personEls.push({g,testRing,infectionRing,head,mouth,bubble,check,pickedRing,tooltip});
+    });
+    scene.ready=true;
+  }
+
+  function playTransmissionEffects(frame){
+    const effects=$('sim-effect-layer');
+    effects.replaceChildren();
+    if(!narrator||!frame.events?.transmissions?.length)return;
+    frame.events.transmissions.forEach((e,k)=>{
+      const a=nodes[e.from],b=nodes[e.to];
+      const delay=Math.min(k*.12,.48).toFixed(2);
+      effects.appendChild(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'sim-transmission',style:`animation-delay:${delay}s`}));
+      const dot=el('circle',{r:4.5,fill:'#ff9772',class:'sim-travel-dot'});
+      dot.appendChild(el('animateMotion',{dur:'.98s',begin:`${delay}s`,fill:'freeze',path:`M ${a.x} ${a.y} L ${b.x} ${b.y}`}));
+      effects.appendChild(dot);
+    });
+  }
+
+  function draw(frame,animate){
+    initScene();
+    // Lines are stable too. Missing-edge view changes only fade their opacity.
+    edges.forEach((e,k)=>{
+      const classes=['sim-edge',e.observed?'sim-observed':'sim-unobserved'];
+      if(!e.observed&&!narrator)classes.push('sim-edge-off');
+      scene.edgeEls[k].setAttribute('class',classes.join(' '));
     });
     const ev=frame.events;
-    if(animate&&narrator&&ev?.transmissions?.length){
-      ev.transmissions.forEach((e,k)=>{
-        const a=nodes[e.from],b=nodes[e.to];
-        const l=el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'sim-transmission',style:`animation-delay:${(k*.12).toFixed(2)}s`});
-        effects.appendChild(l);
-        const dot=el('circle',{r:5,fill:'#ff9772',class:'sim-travel-dot'});
-        const move=el('animateMotion',{dur:'.95s',begin:`${(k*.12).toFixed(2)}s`,fill:'freeze',path:`M ${a.x} ${a.y} L ${b.x} ${b.y}`});
-        dot.appendChild(move);effects.appendChild(dot);
-      });
-    }
+    if(animate)playTransmissionEffects(frame);
+    else $('sim-effect-layer').replaceChildren();
+
     nodes.forEach(n=>{
-      const s=frame.state[n.i],test=ev.tested.includes(n.i),positive=ev.positives.includes(n.i);
-      const newInfection=ev.transmissions.some(e=>e.to===n.i);
+      const p=scene.personEls[n.i],s=frame.state[n.i];
+      const tested=ev.tested.includes(n.i),positive=ev.positives.includes(n.i);
+      const justInfected=ev.transmissions.some(e=>e.to===n.i);
       const shown=(s==='H'&&!narrator)?'S':s;
-      const g=el('g',{class:`sim-person sim-state-${shown}${test?' sim-has-test':''}${positive?' sim-new-confirmed':''}${newInfection&&animate?' sim-just-infected':''}`,'data-node':n.i,tabindex:0,role:'button','aria-label':`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Undiagnosed; actual state hidden':statusNames[s])}${test?', tested today':''}`});
-      if(test)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:21,class:'sim-test-ring'}));
-      if(newInfection&&animate&&narrator)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:24,class:'sim-infection-ring'}));
-      g.appendChild(el('circle',{cx:n.x,cy:n.y,r:12.6,fill:colors[shown],class:'sim-head'}));
-      g.appendChild(el('circle',{cx:n.x-3.7,cy:n.y-2,r:1.25,class:'sim-eye'}));
-      g.appendChild(el('circle',{cx:n.x+3.7,cy:n.y-2,r:1.25,class:'sim-eye'}));
-      const mouth=shown==='H'?'M -3 4 Q 0 1 3 4':shown==='C'?'M -3 3 L 3 3':'M -3 2 Q 0 6 3 2';
-      g.appendChild(el('path',{d:mouth,transform:`translate(${n.x} ${n.y})`,class:'sim-mouth'}));
-      if(shown==='C'){
-        g.appendChild(el('circle',{cx:n.x+11,cy:n.y-10,r:6.8,class:'sim-isolated-bubble'}));
-        g.appendChild(el('path',{d:`M ${n.x+8.5} ${n.y-10} L ${n.x+10.5} ${n.y-8} L ${n.x+14} ${n.y-12}`,class:'sim-isolated-check'}));
+      p.g.setAttribute('class',`sim-person sim-state-${shown}${positive?' sim-new-confirmed':''}`);
+      p.head.setAttribute('fill',colors[shown]); // fill tween instead of popping node
+      p.mouth.setAttribute('d',shown==='H'?'M -3 4 Q 0 1 3 4':shown==='C'?'M -3 3 L 3 3':'M -3 2 Q 0 6 3 2');
+      p.testRing.classList.toggle('sim-active',tested);
+      p.bubble.classList.toggle('sim-active',shown==='C');
+      p.check.classList.toggle('sim-active',shown==='C');
+      p.pickedRing.classList.toggle('sim-active',picked===n.i);
+      p.infectionRing.classList.remove('sim-active');
+      if(animate&&narrator&&justInfected){
+        // Restart ONLY the expanding halo; never scale the node or change its position.
+        void p.infectionRing.getBoundingClientRect();
+        p.infectionRing.classList.add('sim-active');
       }
-      if(picked===n.i)g.appendChild(el('circle',{cx:n.x,cy:n.y,r:17,class:'sim-picked-ring'}));
-      const t=el('title');t.textContent=`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Unknown to policy':statusNames[s])}${test?' · selected for testing':''}`;g.appendChild(t);
-      g.addEventListener('click',()=>{picked=n.i;draw(frame,false);});
-      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();picked=n.i;draw(frame,false);}});
-      persons.appendChild(g);
+      p.g.setAttribute('aria-label',`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Undiagnosed; actual state hidden':statusNames[s])}${tested?', tested today':''}`);
+      p.tooltip.textContent=`Person ${n.i+1}: ${narrator?statusNames[s]:(s==='H'?'Unknown to policy':statusNames[s])}${tested?' · selected for testing':''}`;
     });
     setTxt('sim-day',frame.day);
     setTxt('sim-day-tiny',`DAY ${frame.day} / ${DAYS}`);
@@ -365,7 +426,7 @@
     const header=frame.day===0?'A hidden infection enters the network':ev.positives.length?`${ev.positives.length} hidden case${ev.positives.length>1?'s':''} detected and isolated`:ev.transmissions.length?`${ev.transmissions.length} new infection${ev.transmissions.length>1?'s':''} after contact`:'The network changes, even without new cases';
     setTxt('sim-story-title',narrator?header:'The policy sees only diagnoses');
     let body;
-    if(frame.day===0)body=`Two people are infectious without knowing it. One confirmed case is already isolated. Run the animation to watch testing, contact, and spread.`;
+    if(frame.day===0)body='Two people are infectious without knowing it. One confirmed case is already isolated. Run the animation to watch testing, contact, and spread.';
     else{
       const testing=policy==='none'?'No tests were administered.':`${ev.tested.length} eligible people were tested; ${ev.positives.length} hidden infection${ev.positives.length===1?' was':'s were'} found and isolated.`;
       body=`${testing} Meanwhile ${ev.transmissions.length} new infection${ev.transmissions.length===1?' occurred':'s occurred'} along the true network, including contacts the policy may not see.`;
@@ -413,6 +474,6 @@
   buildFrames();jump(0);
 })();
 
-</script>
+  </script>
 </body>
 </html>
