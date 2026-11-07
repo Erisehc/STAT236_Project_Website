@@ -31,9 +31,3 @@ Alternatively, upload the **entire website folder contents** to a static-hosting
 
 The contact network shown in the hero is a **schematic illustration**, not the observed Haslemere network, and its nodes/edges are generated solely for the visual. The interactive **result explorer uses real simulation summary outputs** from the included ZIP (30 paired simulated epidemics for each SBM scenario). The dynamic Haslemere results are drawn from the `extended_policy_table.tex` and `extended_results_text.tex` in the supplied report. The site explicitly notes that only three Haslemere days are measured, that later days are resampled, and that all infections are simulated. No claims of statistical superiority are made where paired Monte Carlo intervals include zero.
 
-## Before submitting
-
-- Replace or supplement PDF if the group updates the written report after this version.
-- Re-check the authors and numbers against the final submitted report.
-- The source document mentions `https://github.com/annieliang111/STAT236Project`, but a public request returned 404 on 2026-11-05. The site therefore does **not** link to this repository until it is confirmed publicly accessible. You may add a code link to `index.html` once the repository becomes public.
-- The site is for an academic demonstration and does not predict public-health outcomes.
