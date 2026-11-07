@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0c1724" />
+  <meta name="site-version" content="stat236-smooth-v2-20261106" />
   <meta name="description" content="An interactive STAT 236 research showcase on allocating limited disease tests using incomplete contact networks, community structure, and temporal histories." />
   <title>Who Should We Test? — STAT 236 Research Project</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -58,6 +59,7 @@
 
 /* Smooth-playback update: persistent node/edge elements, no re-spawning heads. */
 .sim-head{transition:fill .68s cubic-bezier(.2,.8,.2,1),stroke .45s ease;transform-box:fill-box;transform-origin:center;}
+.sim-just-infected .sim-head{animation:none!important;}
 .sim-edge{transition:opacity .48s ease,stroke .48s ease;}
 .sim-edge-off{opacity:0!important;}
 .sim-person{transition:opacity .35s ease;}
@@ -100,7 +102,7 @@
           <h1>Who should<br />we <em>test</em> when<br />the network<br />is <span class="outlined-word">incomplete?</span></h1>
           <p class="hero-description">A limited testing budget. Hidden infections. Missing contacts. We investigate when network-aware screening helps control simulated epidemics—and when the information it relies on starts to fail.</p>
           <div class="hero-actions"><a class="btn btn-primary" href="#simulation">▶ Watch the outbreak <span aria-hidden="true">↗</span></a><a class="btn btn-quiet" href="#explore">Explore real results <span aria-hidden="true">↓</span></a></div>
-          <p class="hero-footnote">A statistical simulation study · Not a real-world disease forecast</p>
+          <p class="hero-footnote">Yinpeng Cai · Aniket Jain · Annie Liang · Zidan Luo</p>
         </div>
         <div class="hero-visual">
           <div class="network-card">
@@ -133,7 +135,7 @@
         </div>
         <div class="sim-theater" aria-label="Interactive animated network epidemic illustration">
           <div class="sim-toolbar">
-            <div class="sim-brand"><span class="sim-record" aria-hidden="true"></span> EPIDEMIC STORYBOARD <small>ILLUSTRATIVE MINI-SIMULATION</small></div>
+            <div class="sim-brand"><span class="sim-record" aria-hidden="true"></span> EPIDEMIC STORYBOARD <small>SMOOTH V2 · ILLUSTRATIVE MINI-SIMULATION</small></div>
             <div class="sim-toolbar-actions">
               <button type="button" id="sim-play" class="sim-control sim-primary" aria-pressed="false">▶ Play the story</button>
               <button type="button" id="sim-next" class="sim-control sim-small">Next day →</button>
@@ -169,7 +171,6 @@
           <div class="sim-timeline"><span id="sim-day-tiny">DAY 0 / 14</span><div class="sim-time-wrap"><div class="sim-progress-track"><div id="sim-progress" style="width:0%"></div></div><input type="range" id="sim-scrub" min="0" max="14" step="1" value="0" aria-label="Scrub to a day in the illustration" /></div><small>DRAG TO REPLAY</small></div>
         </div>
         <div class="sim-legend" aria-label="Animation legend"><span><i style="background:#b5f1dc"></i>Susceptible</span><span><i style="background:#ffb16e"></i>Hidden infectious</span><span><i style="background:#cd9cf9"></i>Confirmed / isolated</span><span><i style="background:#91a2b7"></i>Recovered</span><span><i class="obs"></i>Observed edge</span><span><i class="missing"></i>Unobserved edge (narrator only)</span></div>
-        <p class="sim-boundary"><strong>Important: this is a teaching animation, not one of our reported experiments.</strong> It uses a small 30-person toy graph, simplified transmissions and perfect test detection, and a contact-aware illustrative heuristic. We do <strong>not</strong> use this animated run to claim a strategy is superior. The research results below use the full 50-day SBM and Haslemere experiments from the paper.</p>
       </div>
     </section>
 
@@ -214,12 +215,12 @@
       </div>
     </section>
 
-    <section class="section closing-section shell" id="takeaways"><div class="section-kicker"><span>06</span><span>WHAT WE LEARNED</span></div><div class="closing-grid"><div><h2>The best decision depends on <em>what you can actually see.</em></h2><p class="closing-lead">Network-aware optimization can reduce simulated infections relative to untargeted testing. But an advanced scoring model isn't automatically better than a simpler adaptive rule when contacts are missing.</p><a class="btn btn-dark" href="report.pdf" target="_blank" rel="noopener">Read the full 19-page report <span aria-hidden="true">↗</span></a></div><div class="takeaways"><article><span>01</span><div><h3>Accuracy ≠ policy success.</h3><p>Estimating hidden infections more accurately doesn't necessarily select the people whose tests prevent the most transmission.</p></div></article><article><span>02</span><div><h3>Missing contacts are consequential.</h3><p>Data gaps often reduce simulated control performance, but neither compared policy is consistently the most robust.</p></div></article><article><span>03</span><div><h3>Timing deserves careful evidence.</h3><p>Under the day-block contact extension, recency-weighting does not outperform cumulative-history weighting decisively.</p></div></article></div></div>
+    <section class="section closing-section shell" id="takeaways"><div class="section-kicker"><span>06</span><span>WHAT WE LEARNED</span></div><div class="closing-grid"><div><h2>The best decision depends on <em>what you can actually see.</em></h2><p class="closing-lead">Network-aware optimization can reduce simulated infections relative to untargeted testing. But an advanced scoring model isn't automatically better than a simpler adaptive rule when contacts are missing.</p><a class="btn btn-dark" href="report.pdf" target="_blank" rel="noopener">Read the full report <span aria-hidden="true">↗</span></a></div><div class="takeaways"><article><span>01</span><div><h3>Accuracy ≠ policy success.</h3><p>Estimating hidden infections more accurately doesn't necessarily select the people whose tests prevent the most transmission.</p></div></article><article><span>02</span><div><h3>Missing contacts are consequential.</h3><p>Data gaps often reduce simulated control performance, but neither compared policy is consistently the most robust.</p></div></article><article><span>03</span><div><h3>Timing deserves careful evidence.</h3><p>Under the day-block contact extension, recency-weighting does not outperform cumulative-history weighting decisively.</p></div></article></div></div>
       <div class="caveat"><span class="caveat-icon">!</span><p><strong>Interpretation boundary.</strong> Haslemere proximity observations cover a selected sample and just three measured days. Future contacts are resampled; disease states, testing outcomes, and transmission parameters are simulated or assumed. The one-step optimizer ignores downstream cascades. These results are methodological comparisons, not public-health policy recommendations.</p></div>
       <div class="resources"><div><span class="mini-eyebrow">GO DEEPER</span><h3>Paper, figures & reproducibility</h3></div><div class="resource-links"><a href="report.pdf" target="_blank" rel="noopener"><span class="resource-icon">↗</span><span><strong>Full project report</strong><small>PDF · Methods, assumptions, tables, limitations</small></span></a><a href="data/optimized_sbm_summary.csv" download><span class="resource-icon">↓</span><span><strong>Static-SBM result data</strong><small>CSV · Policy outcomes by community and visibility</small></span></a><a href="data/extended_haslemere_summary.csv" download><span class="resource-icon">↓</span><span><strong>Extended Haslemere result data</strong><small>CSV · Simulation outcomes across policies</small></span></a></div></div>
     </section>
   </main>
-  <footer class="site-footer"><div class="shell footer-layout"><div><span class="footer-logo">STAT<span>236</span> / FALL 2026</span><p>Network-Aware Testing Allocation for Infectious Disease Control Under Limited Resources</p></div><div><span>RESEARCH TEAM</span><p>Yinpeng Cai · Aniket Jain · Annie Liang · Zidan Luo</p><small>Made for the STAT 236 final project showcase.</small></div><a href="#top" class="back-to-top">Back to top ↑</a></div></footer>
+  <footer class="site-footer"><div class="shell footer-layout"><div><span class="footer-logo">STAT<span>236</span> / FALL 2026</span><p>Network-Aware Testing Allocation for Infectious Disease Control Under Limited Resources</p></div><div><span>RESEARCH TEAM</span><p>Yinpeng Cai · Aniket Jain · Annie Liang · Zidan Luo</p></div><a href="#top" class="back-to-top">Back to top ↑</a></div></footer>
   <script>
 /*
  * Animated, self-contained classroom illustration for STAT 236.
